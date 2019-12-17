@@ -1,0 +1,25 @@
+Type: Package
+Package: dirtywind
+Title: Use the HYSPLIT model and tie its results to pollution data
+Version: 0.0.0.9000
+Authors@R: person("Ivan", "Higuera-Mendieta", email = "ivanhigueram@uchicago.edu",
+           role = c("aut", "cre"))
+Description: Use the HYSPLIT model in R, implemented by the splitr package, 
+    and add some SQL support and some code to tie the data with pollution data
+    to the zip-code level, and more stuff!.
+License: MIT 
+Encoding: UTF-8
+LazyData: true
+Imports:
+        dplyr,
+        tidyr,
+        purrr,
+        lubridate,
+        glue,
+        measurements,
+        ggplot2,
+        RPostgres
+Suggests:
+        stringr,
+        sf,
+        testthat
