@@ -17,9 +17,12 @@ Imports:
         lubridate,
         glue,
         measurements,
-        ggplot2,
-        RPostgres
-Suggests:
+        RCurl,
+        RPostgres,
+        data.table,
         stringr,
+        tibble
+Suggests:
         sf,
+        raster,
         testthat
