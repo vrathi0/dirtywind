@@ -104,6 +104,7 @@ load_plant_data  <- function(conn,
                                emission_data_coal <- emissions_data_year %>% 
                                dplyr::select('facility_id' = 'Facility.ID..ORISPL.',
                                               'unit_id' = 'Unit.ID',
+                                              'facility_name' = 'Facility.Name.x',
                                               'month' = 'Month',
                                               'year' = 'Year',
                                               'latitude' = 'Facility.Latitude.x',
@@ -122,6 +123,7 @@ load_plant_data  <- function(conn,
                                 dplyr::filter((is_coal == 1)) %>% 
                                 dplyr::group_by(facility_id, 
                                           unit_id, 
+                                          facility_name,
                                           latitude, 
                                           longitude, 
                                           year,
@@ -136,9 +138,10 @@ load_plant_data  <- function(conn,
                                           has_nox_scrub = max(has_nox_scrub)
                                 ) %>% 
                                 dplyr::left_join(d_nei_clean, by=c('facility_id', 'unit_id')) %>% 
-                                dplyr::select(-latitude.y, -longitude.y,
+                                dplyr::select(-latitude.y, -longitude.y, -facility_name.y,
                                               latitude = 'latitude.x',
-                                              longitude = 'longitude.x')
+                                              longitude = 'longitude.x',
+                                              facility_name = 'facility_name.x')
 
                                 emission_data_coal_imp  <- emission_data_coal %>%
                                     dplyr::mutate(stack_height = ifelse(is.na(stack_height), 
