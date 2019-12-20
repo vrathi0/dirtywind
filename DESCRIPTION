@@ -14,14 +14,16 @@ Imports:
         dplyr,
         tidyr,
         purrr,
-        lubridate,
         glue,
+        lubridate,
         measurements,
         RCurl,
         RPostgres,
         data.table,
         stringr,
-        tibble
+        tibble,
+        future,
+        furrr
 Suggests:
         sf,
         raster,
