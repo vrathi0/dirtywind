@@ -16,18 +16,26 @@ model_inputs_unit  <- function(query,
                                end_date,
                                duration,
                                daily_hours) {
-    
+
+    if (is.character(start_date)) {
+        start_date = as.Date(start_date)
+    }
+
+    if (is.character(end_date)) {
+        end_date = as.Date(end_date)
+    }
 
     query_units <- dbGetQuery(conn=con,
                               statement=query)
     
-    query_parameters <- query %>% 
-        as_tibble(.) %>% 
+    query_parameters <- query_units %>% 
+        tibble::as_tibble(.) %>% 
         tidyr::expand(tidyr::nesting(facility_id, latitude,longitude, facility_name, stack_height), 
                       start_date = seq.Date(start_date, end_date, timedelta)) %>%
-        add_columns(duration = duration,
+        tibble::add_column(duration = duration,
                     daily_hours = list(daily_hours)
+                    )
     
     return(query_parameters)
 
-
+}
