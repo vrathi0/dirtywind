@@ -168,6 +168,5 @@ load_plant_data  <- function(conn,
                      copy = TRUE,
                      overwrite = overwrite
                      )
-
       }
 }
