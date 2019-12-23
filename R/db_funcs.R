@@ -1,19 +1,13 @@
 #' Function for SQL DB management
 
 #' @export send_output_db
-send_output_db  <- function(df, con, table_name, schema, ...) {
+send_output_db  <- function(df, cred, table_name, schema, ...) {
 
-    if(is.null(con)){
-        con <- pool::dbPool(RPostgres::Postgres(),
-                            user=Sys.getenv('USER'),
-                            password=Sys.getenv('PASSWORD'),
-                            host=Sys.getenv('HOST',),
-                            port=Sys.getenv('PORT'),
-                            dbname=Sys.getenv('DBNAME'),
-                            options=glue::glue("-c search_path={schema}"))
+    if(is.null(cred)){
+        stop('You have to define a list with credential values for database.')
+    } else {
+        con <- mydb(cred)
     }
-
-    #table_out  <- DBI::SQL(glue::glue('{schema}.{table_name}'))
 
     message(glue::glue('Sending {dim(df)[1]} rows to dataabase'))
     DBI::dbWriteTable(conn = con,
@@ -24,3 +18,26 @@ send_output_db  <- function(df, con, table_name, schema, ...) {
                  copy = TRUE,
                  ...)
 }
+
+
+mydb <- function(cred) {
+  library(DBI)
+  library(odbc)
+  if (exists(".cred") && !is.null(.cred) && !identical(.cred, cred)) {
+    if (exists(".pool") && !is.null(.pool)) {
+      pool::poolClose(.pool)
+      .pool <<- NULL
+    }
+    .cred <<- NULL
+  }
+  if (!exists(".pool") || is.null(.pool)) {
+    .pool <<- do.call(pool::dbPool, cred)
+    .cred <<- cred
+  }
+  conn <- pool::poolCheckout(.pool)
+  # hack to always return the pool object, don't "leak" it
+  do.call(on.exit, list(substitute(suppressWarnings(pool::poolReturn(conn)))),
+          envir = parent.frame())
+  conn
+}
+
