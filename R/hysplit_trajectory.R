@@ -87,7 +87,12 @@ hysplit_trajectory <- function(lat = 49.263,
                                binary_path = NULL,
                                met_dir = NULL,
                                exec_dir = NULL,
-                               clean_up = TRUE) {
+                               clean_up = TRUE,
+                               name_source = NULL,
+                               id_source = NULL,
+                               cred = NULL,
+                               table_name='trajectories_hysplit',
+                               schema='hysplit') {
   
   # If the execution dir isn't specified, use the working directory
   if (is.null(exec_dir)) exec_dir <- getwd()
@@ -356,7 +361,7 @@ hysplit_trajectory <- function(lat = 49.263,
       dplyr::arrange(receptor, traj_dt_i, dplyr::desc(hour_along))
   }
   
-  ensemble_tbl %>%
+  ensemble_tbl_complete  <- ensemble_tbl %>%
     dplyr::right_join(
       ensemble_tbl %>%
         dplyr::select(receptor, traj_dt_i, lat_i, lon_i, height_i) %>%
@@ -364,5 +369,13 @@ hysplit_trajectory <- function(lat = 49.263,
         dplyr::mutate(run = dplyr::row_number()),
       by = c("receptor", "traj_dt_i", "lat_i", "lon_i", "height_i")
     ) %>%
-    dplyr::select(run, dplyr::everything())
+    dplyr::select(run, dplyr::everything()) 
+        
+   ensemble_tbl_complete  %>%
+       mutate(name_source = name_source,
+              id_source = id_source )%>%
+       dplyr::select(name_source, id_source, dplyr::everything()) %>%
+       send_output_db(cred = cred,
+                      table_name = table_name,
+                      schema = schema)
 }
