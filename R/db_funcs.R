@@ -19,7 +19,6 @@ send_output_db  <- function(df, cred, table_name, schema, ...) {
                  ...)
 }
 
-
 mydb <- function(cred) {
   library(DBI)
   library(odbc)
