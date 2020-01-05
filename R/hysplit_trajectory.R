@@ -87,7 +87,7 @@ hysplit_trajectory <- function(lat = 49.263,
                                binary_path = NULL,
                                met_dir = NULL,
                                exec_dir = NULL,
-                               clean_up = TRUE,
+                               clean_up = FALSE,
                                name_source = NULL,
                                id_source = NULL,
                                cred = NULL,
@@ -278,7 +278,7 @@ hysplit_trajectory <- function(lat = 49.263,
             "\" && \"",
             binary_path,
             "\" ",
-            to_null_dev(system_type = system_type),
+           to_null_dev(system_type = system_type),
             ")"
           )
         
@@ -370,7 +370,7 @@ hysplit_trajectory <- function(lat = 49.263,
       by = c("receptor", "traj_dt_i", "lat_i", "lon_i", "height_i")
     ) %>%
     dplyr::select(run, dplyr::everything()) 
-        
+   
    ensemble_tbl_complete  %>%
        mutate(name_source = name_source,
               id_source = id_source )%>%
@@ -378,4 +378,5 @@ hysplit_trajectory <- function(lat = 49.263,
        send_output_db(cred = cred,
                       table_name = table_name,
                       schema = schema)
+
 }
