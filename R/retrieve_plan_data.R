@@ -155,9 +155,13 @@ load_plant_data  <- function(conn,
          dplyr::distinct(facility_id, unit_id, .keep_all = TRUE)
 
     if (isTRUE(save_local)) {
-        write.csv(emission_data_coal_imp, 
-                  'coal_plant_inventory_all_years.csv', 
-                   row.names = FALSE)
+        if(!dir.exists(here::here('data'))){
+            dir.create(here::here('data'))
+        } else {
+            write.csv(emission_data_coal_imp, 
+                      here::here('data', 'coal_plant_inventory_all_years.csv'), 
+                      row.names = FALSE)
+        }
     } else {
         print('Uploading to database')
         RPostgres::dbWriteTable(
