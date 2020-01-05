@@ -147,7 +147,20 @@ is_64bit_system <- function() {
   ifelse(.Machine$sizeof.pointer == 8, TRUE, FALSE)
 }
 
-#' Obtain the redirect to null device command-line text based on system
+#' 
+#' @noRd
+to_log_dev <- function(system_type) {
+  
+  if (system_type %in% c("mac", "unix")) {
+    log_dev <- ">> /tmp/devlog 2>&1"
+  } else if (system_type == "win") {
+    log_dev <- "> NUL 2>&1"
+  }
+  
+  log_dev 
+}
+
+
 #' 
 #' @noRd
 to_null_dev <- function(system_type) {
