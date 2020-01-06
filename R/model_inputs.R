@@ -9,13 +9,13 @@
 
 
 #' @export model_inputs_unit
-model_inputs_unit  <- function(query, 
-                               con,
-                               timedelta = '1 month',
-                               start_date,
+model_inputs_unit  <- function(start_date,
                                end_date,
                                duration,
                                daily_hours,
+                               timedelta = '1 month',
+                               query = NULL, 
+                               con = NULL,
                                local_file = NULL) {
 
     if (is.character(start_date)) {
@@ -34,7 +34,17 @@ model_inputs_unit  <- function(query,
         query_units <- dbGetQuery(conn=con,
                                   statement=query)
     } else {
-        query_units <- read.csv(local_file)
+        query_units <- tryCatch(
+                            suppressWarnings(
+                                             read.csv('data/coal_plant_inventory_all_years.csv')
+                                             ),
+                                error = function(e){
+                                    read.csv(local_file)
+                                },
+                                finally = {
+                                  message('Try to read data/coal_plant_inventory_all_years.csv by default.')
+                                }
+                                )
     }
 
     query_parameters <- query_units %>% 
