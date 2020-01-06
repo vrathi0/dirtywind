@@ -87,7 +87,7 @@ hysplit_trajectory <- function(lat = 49.263,
                                binary_path = NULL,
                                met_dir = NULL,
                                exec_dir = NULL,
-                               clean_up = FALSE,
+                               clean_up = TRUE,
                                name_source = NULL,
                                id_source = NULL,
                                cred = NULL,
@@ -146,11 +146,7 @@ hysplit_trajectory <- function(lat = 49.263,
     config_list[tm_names] <- 1
   }
   
-  # Write the config and ascdata lists to files in
-  # the `exec` directory
-  config_list %>% write_config_list(dir = exec_dir)
-  ascdata_list %>% write_ascdata_list(dir = exec_dir)
-  
+ 
   # Stop function if there are vectors of different
   # length for `lat` and `lon`
   if (length(lat) != length(lon)) {
@@ -229,6 +225,22 @@ hysplit_trajectory <- function(lat = 49.263,
         } else {
           full_year_GMT <- paste0("20", start_year_GMT)
         }
+
+        # Creaate model folder name for parallel execution
+        model_folder_name <- paste0("model-", 
+                                    as.character(Sys.getpid()), '-', 
+                                    format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
+
+        model_folder_path  <- file.path(exec_dir, model_folder_name)
+
+        if (!dir.exists(model_folder_path)){
+            dir.create(model_folder_path)
+        }
+        
+        # Write the config and ascdata lists to files in
+        # the `exec` directory
+        config_list %>% write_config_list(dir = model_folder_path)
+        ascdata_list %>% write_ascdata_list(dir = model_folder_path)
         
         # Construct the output filename string for this
         # model run
@@ -266,7 +278,7 @@ hysplit_trajectory <- function(lat = 49.263,
           output_filename = output_filename,
           system_type = system_type,
           met_dir = met_dir,
-          exec_dir = exec_dir
+          exec_dir = model_folder_path
         )
         
         # The CONTROL file is now complete and in the
@@ -274,37 +286,36 @@ hysplit_trajectory <- function(lat = 49.263,
         sys_cmd <- 
           paste0(
             "(cd \"",
-            exec_dir,
+            model_folder_path,
             "\" && \"",
             binary_path,
             "\" ",
-           to_null_dev(system_type = system_type),
+            to_log_dev(system_type = system_type),
             ")"
           )
-        
         execute_on_system(sys_cmd, system_type = system_type)
+
+        recep_file_path <- file.path(exec_dir, receptor_i, folder_name)
+    
+        recep_file_path_stack <- 
+          c(recep_file_path_stack, file.path(exec_dir, receptor_i))
         
+        # Create the output folder if it doesn't exist
+        if (!dir.exists(recep_file_path)) {
+          dir.create(path = recep_file_path, recursive = TRUE)
+        }
+   
+        # Move files into the output folder
+        file.copy(
+          from = file.path(model_folder_path, trajectory_files),
+          to = recep_file_path,
+          copy.mode = TRUE
+        )
+        
+        unlink(file.path(model_folder_path, trajectory_files), force = TRUE)
+
       }
     }
-    
-    recep_file_path <- file.path(exec_dir, receptor_i, folder_name)
-    
-    recep_file_path_stack <- 
-      c(recep_file_path_stack, file.path(exec_dir, receptor_i))
-    
-    # Create the output folder if it doesn't exist
-    if (!dir.exists(recep_file_path)) {
-      dir.create(path = recep_file_path, recursive = TRUE)
-    }
-    
-    # Move files into the output folder
-    file.copy(
-      from = file.path(exec_dir, trajectory_files),
-      to = recep_file_path,
-      copy.mode = TRUE
-    )
-    
-    unlink(file.path(exec_dir, trajectory_files), force = TRUE)
     
     # Obtain a trajectory data frame
     traj_tbl <-
@@ -374,9 +385,9 @@ hysplit_trajectory <- function(lat = 49.263,
    ensemble_tbl_complete  %>%
        mutate(name_source = name_source,
               id_source = id_source )%>%
-       dplyr::select(name_source, id_source, dplyr::everything()) %>%
-       send_output_db(cred = cred,
-                      table_name = table_name,
-                      schema = schema)
+       dplyr::select(name_source, id_source, dplyr::everything())
+       #send_output_db(cred = cred,
+       #               table_name = table_name,
+       #               schema = schema)
 
 }
