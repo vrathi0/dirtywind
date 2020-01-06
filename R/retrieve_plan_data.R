@@ -40,25 +40,39 @@ load_plant_data  <- function(conn,
     url_emissions <- "https://dataverse.harvard.edu/api/access/datafile/3086908?gbrecs=true"
     point_inputs  <- "ftp://newftp.epa.gov/air/emismod/2014/v2/2014fd/emissions/2014fd_inputs_point.zip"
     
-    emissions_data  <- read.csv(url_emissions)
+    emissions_filename  <- 'AMPD_Unit_with_Sulfur_Content_and_Regulations_with_Facility_Attributes.csv'
+    if (emissions_filename %in% list.files()){
+        message('Reading emissions file from local system')
+        emissions_data  <-  read.csv(emissions_filename)
+    } else {
+        emissions_data  <- read.csv(url_emissions)
+    }
 
-    temp_path <- tempdir()
-    zip_path  <- file.path(temp_path, '2014fd_cb6_14j.zip')
-
-    filenames_ftp  <- RCurl::getURL("ftp://newftp.epa.gov/air/emismod/2014/v2/2014fd/emissions/",
-                                    ftp.use.epsv = FALSE,
-                                    dirlistonly = TRUE)
-
-    filenames_list  <- strsplit(filenames_ftp, "\n")[[1]] 
-
-    if ('2014fd_inputs_point.zip' %in% filenames_list) {
-        download.file(point_inputs, zip_path)
-        unzip(zip_path, exdir=temp_path)
+    if ('2014fd_inputs_point.zip' %in% list.files()){
+        temp_path <- tempdir()
+        unzip('2014fd_inputs_point.zip', exdir=temp_path)
         csv_path <- file.path(temp_path, 
                               '2014fd_cb6_14j/inputs/ptegu/ptegu_2014NEIv2_POINT_20171103_final_21dec2017_nf_v2.csv') 
         points_df  <- data.table::fread(csv_path, skip=18)
+ 
+    } else {
+        temp_path <- tempdir()
+        zip_path  <- file.path(temp_path, '2014fd_cb6_14j.zip')
+        filenames_ftp  <- RCurl::getURL("ftp://newftp.epa.gov/air/emismod/2014/v2/2014fd/emissions/",
+                                        ftp.use.epsv = FALSE,
+                                        dirlistonly = TRUE)
+        
+        filenames_list  <- strsplit(filenames_ftp, "\n")[[1]] 
+        
+        if ('2014fd_inputs_point.zip' %in% filenames_list) {
+            download.file(point_inputs, zip_path)
+            unzip(zip_path, exdir=temp_path)
+            csv_path <- file.path(temp_path, 
+                                  '2014fd_cb6_14j/inputs/ptegu/ptegu_2014NEIv2_POINT_20171103_final_21dec2017_nf_v2.csv') 
+            points_df  <- data.table::fread(csv_path, skip=18)
+        }
     }
-
+    
     unlink(temp_path)
 
     # Clean data following Vignette preparation
@@ -86,12 +100,12 @@ load_plant_data  <- function(conn,
              'stack_diam' = 'stkdiam',
              'stack_temp' = 'stktemp',
              latitude, longitude) %>% 
-      dplyr::mutate(facilname = str_to_upper(facility_name),
+      dplyr::mutate(facilname = stringr::str_to_upper(facility_name),
              latitude = round(latitude, 3),
              longitude = round(longitude, 3),
-             stack_height = conv_unit(stack_height, 'ft', 'm'),
-             stack_diam = conv_unit(stack_diam, 'ft', 'm'),
-             stack_temp = conv_unit(stack_temp, 'F', 'K')
+             stack_height = measurements::conv_unit(stack_height, 'ft', 'm'),
+             stack_diam = measurements::conv_unit(stack_diam, 'ft', 'm'),
+             stack_temp = measurements::conv_unit(stack_temp, 'F', 'K')
              ) %>% 
       as_tibble() 
 
@@ -143,22 +157,22 @@ load_plant_data  <- function(conn,
                                               longitude = 'longitude.x',
                                               facility_name = 'facility_name.x')
 
-                                emission_data_coal_imp  <- emission_data_coal %>%
+                                emission_data_coal %>%
                                     dplyr::mutate(stack_height = ifelse(is.na(stack_height), 
                                                                  mean(emission_data_coal$stack_height, na.rm=TRUE),
                                                                  stack_height)
                                 )
-                                return(emission_data_coal_imp)
+                                #return(emission_data_coal_imp)
              })
 
-    emissions_all_years = do.call(rbind, year_plants) %>%
+    emissions_all_years <- do.call(rbind, year_plants) %>%
          dplyr::distinct(facility_id, unit_id, .keep_all = TRUE)
 
     if (isTRUE(save_local)) {
         if(!dir.exists(here::here('data'))){
             dir.create(here::here('data'))
         } else {
-            write.csv(emission_data_coal_imp, 
+            write.csv(emissions_all_years, 
                       here::here('data', 'coal_plant_inventory_all_years.csv'), 
                       row.names = FALSE)
         }
