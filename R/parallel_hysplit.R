@@ -9,8 +9,6 @@
 #' For this a list of credentials is needed (cannot use a normal DBI connection due to the use of a pool
 #' connection) 
 #'
-#'
-#'
 #' @param parameters_df A data.frame or tibble with all the model parameters as defined in model_inputs_unit.
 #' @param creds A list with all the \code{RPostgres::dbConnect()} arguments.
 #' @param direction Direction of modeling (i.e. \code{forward} or \code{backwards}) \code{backwards} is the default
@@ -29,14 +27,13 @@ parallel_hysplit  <- function(parameters_df,
                               ec2=FALSE){
 
     if (isTRUE(ec2)){
-        n_nodes  <- length(public_ip) %>% as.character()
+        n_nodes  <- length(public_ip)
         cls  <- make_cluster_ec2(public_ip)
         message(glue::glue('Socket cluster with {n_nodes} for {public_ip}'))
 
-        plan(list(tweak(cluster, workers = cl_multi), multiprocess))
+        plan(list(tweak(cluster, workers = cls), multicore))
     } else {
         message('Code running locally')
-
         plan(multicore)
     }
 
@@ -52,7 +49,7 @@ parallel_hysplit  <- function(parameters_df,
                                'direction' = 'forward',
                                'met_type' = 'reanalysis',
                                'met_dir' = here::here('met'),
-                               'exec_dir' = here::here("Hysplit4/exec"),
+                               'exec_dir' = here::here("hysplit"),
                                'clean_up' = FALSE,
                                'cred'= list(creds)
                               ),
