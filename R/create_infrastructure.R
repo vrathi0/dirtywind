@@ -11,7 +11,7 @@
 create_split_dirs  <- function(path=NULL){
 
     if(is.null(path)) {
-        warning(glue('Directories are created in {here::here()}'))
+        warning(glue::glue('Directories are created in {here::here()}'))
     }
 
     folders <- list(here::here('met'), here::here('data'), here::here('figs'), here::here('hysplit'))
