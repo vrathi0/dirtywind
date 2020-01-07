@@ -36,23 +36,29 @@ load_plant_data  <- function(conn,
         }
     }
 
+    # Check if data dir exists. If not, create it and store data locally 
+    if(!dir.exists(here::here('data'))){
+        dir.create(here::here('data'))
+    }
+
 
     url_emissions <- "https://dataverse.harvard.edu/api/access/datafile/3086908?gbrecs=true"
     point_inputs  <- "ftp://newftp.epa.gov/air/emismod/2014/v2/2014fd/emissions/2014fd_inputs_point.zip"
     
     emissions_filename  <- 'AMPD_Unit_with_Sulfur_Content_and_Regulations_with_Facility_Attributes.csv'
-    if (emissions_filename %in% list.files()){
+    if (emissions_filename %in% list.files(here::here('data'))){
         message('Reading emissions file from local system')
         emissions_data  <-  read.csv(emissions_filename)
     } else {
         emissions_data  <- read.csv(url_emissions)
+        write.csv(emissions_data,
+                  here::here('data', emissions_filename),
+                  row.names = FALSE)
     }
 
-    if ('2014fd_inputs_point.zip' %in% list.files()){
-        temp_path <- tempdir()
-        unzip('2014fd_inputs_point.zip', exdir=temp_path)
-        csv_path <- file.path(temp_path, 
-                              '2014fd_cb6_14j/inputs/ptegu/ptegu_2014NEIv2_POINT_20171103_final_21dec2017_nf_v2.csv') 
+    inputs_filename <- 'ptegu_2014NEIv2_POINT_20171103_final_21dec2017_nf_v2.csv'
+    if (inputs_filename %in% list.files(here::here('data'))){
+        csv_path <- file.path(here::here('data'), inputs_filename) 
         points_df  <- data.table::fread(csv_path, skip=18)
  
     } else {
@@ -70,6 +76,10 @@ load_plant_data  <- function(conn,
             csv_path <- file.path(temp_path, 
                                   '2014fd_cb6_14j/inputs/ptegu/ptegu_2014NEIv2_POINT_20171103_final_21dec2017_nf_v2.csv') 
             points_df  <- data.table::fread(csv_path, skip=18)
+            file.copy(from = csv_path,
+                      to= here::here('data', 'ptegu_2014NEIv2_POINT_20171103_final_21dec2017_nf_v2.csv')
+            )
+
         }
     }
     
