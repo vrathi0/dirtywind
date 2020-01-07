@@ -69,7 +69,7 @@
 #'   )
 #' }
 #' 
-#' @export
+#' @export 
 hysplit_trajectory <- function(lat = 49.263,
                                lon = -123.250,
                                height = 50,
@@ -90,6 +90,7 @@ hysplit_trajectory <- function(lat = 49.263,
                                clean_up = TRUE,
                                name_source = NULL,
                                id_source = NULL,
+                               db=TRUE,
                                cred = NULL,
                                table_name='trajectories_hysplit',
                                schema='hysplit') {
@@ -382,12 +383,19 @@ hysplit_trajectory <- function(lat = 49.263,
     ) %>%
     dplyr::select(run, dplyr::everything()) 
    
-   ensemble_tbl_complete  %>%
-       mutate(name_source = name_source,
-              id_source = id_source )%>%
-       dplyr::select(name_source, id_source, dplyr::everything())
-       #send_output_db(cred = cred,
-       #               table_name = table_name,
-       #               schema = schema)
+  if (isTRUE(db)){
+      ensemble_tbl_complete  %>%
+          mutate(name_source = name_source,
+                 id_source = id_source) %>%
+          dplyr::select(name_source, id_source, dplyr::everything()) %>%
+          send_output_db(cred = cred,
+                         table_name = table_name,
+                         schema = schema)
+  } else {
+    ensemble_tbl_complete  %>%
+          mutate(name_source = name_source,
+                 id_source = id_source) %>%
+          dplyr::select(name_source, id_source, dplyr::everything())
+  }
 
 }
