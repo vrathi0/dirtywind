@@ -8,9 +8,8 @@ accelerate modeling time.
 
 This is a work in progress: 
 
-- [] Add repo and split from old Python code
-- [] Add package configuration 
-- [] Add PostGIS connection to functions
-- [] Fork **splitr** and add `foreach` and other possible parallel functions
+- [x] Add repo and split from old Python code
+- [x] Add package configuration 
+- [x] Add PostGIS connection to functions
 
 [1]: https://github.com/rich-iannone/splitr
