@@ -28,6 +28,7 @@ Imports:
         parallel,
         future,
         furrr,
+        here
 Suggests:
         sf,
         raster,
