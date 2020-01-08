@@ -1,9 +1,12 @@
 
 #' Utility ClusterPSOCK function to send jobs to AWS EC2 instances
 #' Source: https://davisvaughan.github.io/furrr/articles/advanced-furrr-remote-connections.html
-
+#'
+#' @param public_ip A vector of EC2 IP addresses. 
+#'
 #' @export make_cluster_ec2
 make_cluster_ec2  <- function(public_ip){
+
   ssh_private_key_file  <-  Sys.getenv('PEM_PATH')
   github_pac  <-  Sys.getenv('PAC')
 
