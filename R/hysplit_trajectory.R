@@ -90,10 +90,10 @@ hysplit_trajectory <- function(lat = 49.263,
                                clean_up = TRUE,
                                name_source = NULL,
                                id_source = NULL,
-                               db=TRUE,
+                               db = TRUE,
                                cred = NULL,
-                               table_name='trajectories_hysplit',
-                               schema='hysplit') {
+                               table_name = 'trajectories_hysplit',
+                               schema = 'hysplit') {
   
   # If the execution dir isn't specified, use the working directory
   if (is.null(exec_dir)) exec_dir <- getwd()
@@ -383,7 +383,10 @@ hysplit_trajectory <- function(lat = 49.263,
     ) %>%
     dplyr::select(run, dplyr::everything()) 
    
-  if (isTRUE(db)){
+  if (isTRUE(db)) {
+
+       dirtywind::mydb(cred)
+
       ensemble_tbl_complete  %>%
           mutate(name_source = name_source,
                  id_source = id_source) %>%
@@ -399,3 +402,4 @@ hysplit_trajectory <- function(lat = 49.263,
   }
 
 }
+
