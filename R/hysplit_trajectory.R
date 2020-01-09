@@ -113,7 +113,10 @@ hysplit_trajectory <- function(lat = 49.263,
   
   # Generate name of output folder
   if (is.null(traj_name)) {
-    folder_name <- paste0("traj-", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
+    folder_name <- paste0("traj-", 
+                          as.character(Sys.getpid()), "-",
+                          sample(1:100000, 1)
+                          format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
   } else if (!is.null(traj_name)) {
     folder_name <- traj_name
   }
@@ -230,7 +233,7 @@ hysplit_trajectory <- function(lat = 49.263,
         # Creaate model folder name for parallel execution
         model_folder_name <- paste0("model-", 
                                     as.character(Sys.getpid()), '-', 
-                                    format(Sys.time(), "%Y-%m-%d-%H-%M-%S"),
+                                    format(Sys.time(), "%Y-%m-%d-%H-%M-%S"), '-',
                                     start_year_GMT, '-',
                                     start_month_GMT, '-',
                                     start_day_GMT, '-',
