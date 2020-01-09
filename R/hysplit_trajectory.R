@@ -230,7 +230,11 @@ hysplit_trajectory <- function(lat = 49.263,
         # Creaate model folder name for parallel execution
         model_folder_name <- paste0("model-", 
                                     as.character(Sys.getpid()), '-', 
-                                    format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
+                                    format(Sys.time(), "%Y-%m-%d-%H-%M-%S"),
+                                    start_year_GMT, '-',
+                                    start_month_GMT, '-',
+                                    start_day_GMT, '-',
+                                    start_hour_GMT)
 
         model_folder_path  <- file.path(exec_dir, model_folder_name)
 
@@ -385,15 +389,22 @@ hysplit_trajectory <- function(lat = 49.263,
    
   if (isTRUE(db)) {
 
-       dirtywind::mydb(cred)
+      con <- dirtywind::mydb(cred)
 
-      ensemble_tbl_complete  %>%
+      table_hysplit_sql_id = DBI::Id(schema = schema,
+                                  table = table_name)
+
+      ens_table <- ensemble_tbl_complete  %>%
           mutate(name_source = name_source,
                  id_source = id_source) %>%
-          dplyr::select(name_source, id_source, dplyr::everything()) %>%
-          send_output_db(cred = cred,
-                         table_name = table_name,
-                         schema = schema)
+          dplyr::select(name_source, id_source, dplyr::everything()) 
+          
+      DBI::dbWriteTable(conn = con, 
+                        name = table_hysplit_sql_id
+                        evalue = ns_table,
+                        append = TRUE,
+                        overwrite = FALSE)
+
   } else {
     ensemble_tbl_complete  %>%
           mutate(name_source = name_source,
@@ -402,4 +413,3 @@ hysplit_trajectory <- function(lat = 49.263,
   }
 
 }
-
