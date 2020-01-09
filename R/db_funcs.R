@@ -14,6 +14,7 @@ send_output_db  <- function(df, cred, table_name, schema, ...) {
                  name = table_name,
                  value = df,
                  row.names = FALSE,
+                 overwrite=FALSE,
                  append = TRUE,
                  copy = TRUE,
                  ...)
@@ -21,9 +22,8 @@ send_output_db  <- function(df, cred, table_name, schema, ...) {
 
 #' @export mydb
 mydb <- function(cred) {
-  library(DBI)
-  library(odbc)
-  if (exists(".cred") && !is.null(.cred) && !identical(.cred, cred)) {
+  
+    if (exists(".cred") && !is.null(.cred) && !identical(.cred, cred)) {
     if (exists(".pool") && !is.null(.pool)) {
       pool::poolClose(.pool)
       .pool <<- NULL
