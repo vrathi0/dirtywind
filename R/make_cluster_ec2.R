@@ -16,9 +16,7 @@ make_cluster_ec2  <- function(public_ip){
   rshopts = c(
     "-o", "StrictHostKeyChecking=no",
     "-o", "IdentitiesOnly=yes",
-    "-i", ssh_private_key_file,
-    "--verbose"
-
+    "-i", ssh_private_key_file
   ),
   rscript_args = c(
     "-e", shQuote("local({p <- Sys.getenv('R_LIBS_USER'); dir.create(p, recursive = TRUE, showWarnings = FALSE); .libPaths(p)})"),
