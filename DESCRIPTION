@@ -27,7 +27,8 @@ Imports:
         future,
         furrr,
         here,
-        downloader
+        downloader,
+        splitr
 Suggests:
         sf,
         raster,
