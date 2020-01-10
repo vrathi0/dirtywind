@@ -10,8 +10,6 @@ Description: Use the HYSPLIT model in R, implemented by the splitr package,
 License: MIT 
 Encoding: UTF-8
 LazyData: true
-Remotes: 
-        rich-iannone/splitr
 Imports:
         dplyr,
         tidyr,
@@ -34,3 +32,6 @@ Suggests:
         sf,
         raster,
         testthat
+Remotes: 
+        rich-iannone/splitr
+
