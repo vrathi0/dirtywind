@@ -107,7 +107,7 @@ hysplit_trajectory <- function(lat = 49.263,
       binary_path = binary_path,
       binary_name = "hyts_std"
     )
-  
+
   # Get the system type
   system_type <- get_os()
   
@@ -115,7 +115,7 @@ hysplit_trajectory <- function(lat = 49.263,
   if (is.null(traj_name)) {
     folder_name <- paste0("traj-", 
                           as.character(Sys.getpid()), "-",
-                          sample(1:100000, 1)
+                          sample(1:1e10, 1), "-",
                           format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
   } else if (!is.null(traj_name)) {
     folder_name <- traj_name
@@ -170,8 +170,11 @@ hysplit_trajectory <- function(lat = 49.263,
   
   # Generate a tibble of receptor sites
   receptors_tbl <- 
-    dplyr::tibble(lat = lat, lon = lon) %>%
-    dplyr::group_by(lat, lon) %>% 
+    dplyr::tibble(lat = lat, 
+                  lon = lon,
+                  id_source = id_source,
+                  name_source = name_source) %>%
+    dplyr::group_by(lat, lon, id_source, name_source) %>% 
     tidyr::expand(height = height) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(receptor = dplyr::row_number()) %>%
@@ -303,10 +306,10 @@ hysplit_trajectory <- function(lat = 49.263,
           )
         execute_on_system(sys_cmd, system_type = system_type)
 
-        recep_file_path <- file.path(exec_dir, receptor_i, folder_name)
+        recep_file_path <- file.path(exec_dir, id_source, folder_name)
     
         recep_file_path_stack <- 
-          c(recep_file_path_stack, file.path(exec_dir, receptor_i))
+          c(recep_file_path_stack, file.path(exec_dir, id_source))
         
         # Create the output folder if it doesn't exist
         if (!dir.exists(recep_file_path)) {
@@ -403,8 +406,8 @@ hysplit_trajectory <- function(lat = 49.263,
           dplyr::select(name_source, id_source, dplyr::everything()) 
           
       DBI::dbWriteTable(conn = con, 
-                        name = table_hysplit_sql_id
-                        evalue = ns_table,
+                        name = table_hysplit_sql_id,
+                        value = ens_table,
                         append = TRUE,
                         overwrite = FALSE)
 
