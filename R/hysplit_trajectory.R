@@ -331,7 +331,7 @@ hysplit_trajectory <- function(lat = 49.263,
     
     # Obtain a trajectory data frame
     traj_tbl <-
-      trajectory_read(output_folder = recep_file_path) %>%
+      dirtywind::trajectory_read(output_folder = recep_file_path) %>%
       dplyr::as_tibble() %>%
       dplyr::mutate(
         receptor = receptor_i,
