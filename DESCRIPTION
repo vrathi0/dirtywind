@@ -28,7 +28,8 @@ Imports:
         parallel,
         future,
         furrr,
-        here
+        here,
+        downloader
 Suggests:
         sf,
         raster,
