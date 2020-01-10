@@ -244,6 +244,7 @@ hysplit_trajectory <- function(lat = 49.263,
 
         model_folder_path  <- file.path(exec_dir, model_folder_name)
 
+
         if (!dir.exists(model_folder_path)){
             dir.create(model_folder_path)
         }
@@ -315,7 +316,7 @@ hysplit_trajectory <- function(lat = 49.263,
         if (!dir.exists(recep_file_path)) {
           dir.create(path = recep_file_path, recursive = TRUE)
         }
-   
+        
         # Move files into the output folder
         file.copy(
           from = file.path(model_folder_path, trajectory_files),
