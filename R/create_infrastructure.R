@@ -8,7 +8,8 @@
 
 #' @export create_split_dirs()
  
-create_split_dirs  <- function(path=NULL){
+create_split_dirs  <- function(path=NULL,
+                               overwrite=FALSE){
 
     if(is.null(path)) {
         warning(glue::glue('Directories are created in {here::here()}'))
@@ -16,13 +17,14 @@ create_split_dirs  <- function(path=NULL){
 
     folders <- list(here::here('met'), here::here('data'), here::here('figs'), here::here('hysplit'))
 
-    lapply(folders, function(x){
-               if(dir.exists(x)){
-                   message('Folder already exists! Keeping all things equal')
-               } else {
+    if (isTRUE(overwrite)) {
+        lapply(folders, function(x) {
+                   unlink(x, recursive = TRUE)
                    message(glue::glue('Creating folder: {x}'))
                    dir.create(x)
-               }
-
-          })
+                               }
+        )
+    } else {
+        message('Folder already exists! Keeping all things equal')
+    }
 }
