@@ -22,6 +22,8 @@ send_output_db  <- function(df, cred, table_name, schema, ...) {
 
 #' @export mydb
 mydb <- function(cred) {
+
+    cred  <-  c(list(drv = RPostgres::Postgres()), cred)
   
     if (exists(".cred") && !is.null(.cred) && !identical(.cred, cred)) {
     if (exists(".pool") && !is.null(.pool)) {
