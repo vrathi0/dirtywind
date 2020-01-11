@@ -18,6 +18,7 @@ Imports:
         lubridate,
         measurements,
         RCurl,
+        DBI,
         RPostgres,
         pool,
         data.table,
