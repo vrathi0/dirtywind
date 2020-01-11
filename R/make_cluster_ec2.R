@@ -13,6 +13,7 @@ make_cluster_ec2  <- function(public_ip){
   cl_multi <- future::makeClusterPSOCK(
   workers = public_ip,
   user = "ubuntu",
+  verbose = TRUE,
   rshopts = c(
     "-o", "StrictHostKeyChecking=no",
     "-o", "IdentitiesOnly=yes",
