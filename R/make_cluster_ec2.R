@@ -1,4 +1,3 @@
-
 #' Utility ClusterPSOCK function to send jobs to AWS EC2 instances
 #' Source: https://davisvaughan.github.io/furrr/articles/advanced-furrr-remote-connections.html
 #'
