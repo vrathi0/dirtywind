@@ -21,6 +21,7 @@ make_cluster_ec2  <- function(public_ip){
   rscript_args = c(
     "-e", shQuote("local({p <- Sys.getenv('R_LIBS_USER'); dir.create(p, recursive = TRUE, showWarnings = FALSE); .libPaths(p)})"),
     "-e", shQuote("install.packages(c('devtools', 'remotes'))"),
+    "-e", shQuote("system('sudo apt-get --assume-yes install libgfortran3 postgresql postgresql-contrib')"),
     "-e", shQuote(glue::glue("devtools::install_github('cicala-projects/dirtywind', auth_token = '{github_pac}')")),
     "-e", shQuote("dirtywind::create_split_dirs(overwrite = TRUE)")
   ),
