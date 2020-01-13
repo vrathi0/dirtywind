@@ -233,7 +233,7 @@ hysplit_trajectory <- function(lat = 49.263,
           full_year_GMT <- paste0("20", start_year_GMT)
         }
 
-        # Creaate model folder name for parallel execution
+        # Create model folder name for parallel execution
         model_folder_name <- paste0("model-", 
                                     as.character(Sys.getpid()), '-', 
                                     format(Sys.time(), "%Y-%m-%d-%H-%M-%S"), '-',
