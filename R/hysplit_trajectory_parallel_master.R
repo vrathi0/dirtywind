@@ -206,7 +206,7 @@ hysplit_trajectory_parallel_master <- function(lat = 49.263,
     list_run_days <- days %>% as.character()
     
     # Initialize a vector for all filenames at this receptor
-    trajectory_files <- c()
+    trajectory_files <<- c()
     
     # Make loop with all run days using future/foreach
     future_map(
