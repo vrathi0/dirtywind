@@ -28,6 +28,9 @@ trajectory_day_parallel  <- function(run_day,
                                      ascdata_list,
                                      binary_path
                                      ){
+    
+    # Initialize a vector for all filenames at this receptor
+    trajectory_files <<- c()
 
     # Define starting time parameters
     start_year_GMT <- to_short_year(run_day)
