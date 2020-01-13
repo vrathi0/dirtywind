@@ -1,15 +1,19 @@
+#' HySPLIT daily trajectory - Individual estimation for day/hours to facilitate 
+#' parallel estimation
 #'
-#'
-#'
-#'
-#'
+#' This function will estimate aa HySPLIT trajectory for a single day and a vector
+#' of hours, as shown in the \code{splitr::hysplit_trajetory} and the same named function
+#' in this library. The parameters are the same used in those functions. 
+#' Ideally this function is for internal use of \code{hysplit_trajectory_parallel_master}.
 
 #' @export trajectory_day_parallel
 trajectory_day_parallel  <- function(run_day,
+                                     traj_name,
                                      daily_hours,
                                      exec_dir,
+                                     id_source,
+                                     folder_name,
                                      direction,
-                                     traj_name,
                                      receptor_i,
                                      lat_i,
                                      lon_i,
@@ -20,6 +24,8 @@ trajectory_day_parallel  <- function(run_day,
                                      met_files,
                                      system_type,
                                      met_dir,
+                                     config_list,
+                                     ascdata_list,
                                      binary_path
                                      ){
 
@@ -119,7 +125,9 @@ trajectory_day_parallel  <- function(run_day,
         )
       execute_on_system(sys_cmd, system_type = system_type)
 
-      recep_file_path <- file.path(exec_dir, id_source, folder_name)
+      recep_file_path <<- file.path(exec_dir, id_source, folder_name)
+      print(recep_file_path)
+      message(recep_file_path)
     
       recep_file_path_stack <<- 
         c(recep_file_path_stack, file.path(exec_dir, id_source))
@@ -137,8 +145,7 @@ trajectory_day_parallel  <- function(run_day,
       )
       
       unlink(file.path(model_folder_path, trajectory_files), force = TRUE)
-      
-      return(recep_file_path)
+     
     }
     
 
