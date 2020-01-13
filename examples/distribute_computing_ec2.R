@@ -99,10 +99,8 @@ paramemter_df <- model_inputs_unit(timedelta = '1 month',
 ###############################################################################
 
 
-public_ids <- c('18.236.244.68', 
-                '18.237.218.247',
-                '18.237.2.250'
-)
+public_ids <- c('34.219.67.43',
+                '54.185.44.203')
 cls <- make_cluster_ec2(public_ids)
 
 
@@ -110,7 +108,7 @@ parameter_barry <- paramemter_df %>%
   filter(facility_name == 'Barry')
 
 
-plan(list(tweak(cluster, workers = cls), multisession))
+plan(list(tweak(cluster, workers = cls), multicore))
 
 
 creds_aws <- list(
