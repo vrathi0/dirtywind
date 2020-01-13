@@ -230,7 +230,9 @@ hysplit_trajectory_parallel_master <- function(lat = 49.263,
                           ascdata_list = ascdata_list,
                           binary_path = binary_path)
     )
+    recep_file_path <<- file.path(exec_dir, id_source, folder_name)
     print(glue::glue("This is the path: {recep_file_path}"))
+
 
     # Obtain a trajectory data frame
     traj_tbl <-
