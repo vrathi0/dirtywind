@@ -69,7 +69,7 @@
 #'   )
 #' }
 #' 
-#' @export 
+#' @export hysplit_trajectory_parallel_master 
 hysplit_trajectory_parallel_master <- function(lat = 49.263,
                                                lon = -123.250,
                                                height = 50,
@@ -209,28 +209,31 @@ hysplit_trajectory_parallel_master <- function(lat = 49.263,
     trajectory_files <- c()
     
     # Make loop with all run days using future/foreach
-    recep_file_path  <-  future_pmap(
-                                     list('run_day' = list_run_days,
-                                          'daily_hours' = daily_hours,
-                                          'exec_dir' = exec_dir,
-                                          'direction' = direction,
-                                          'traj_name' = traj_name,
-                                          'receptor_i' = receptor_i,
-                                          'lat_i' = lat_i,
-                                          'lon_i' = lon_i,
-                                          'height_i' = height_i,
-                                          'duration' = duration,
-                                          'vert_motion' = vert_motion,
-                                          'model_height' = model_height, 
-                                          'met_files' = met_files, 
-                                          'system_type' = system_type,
-                                          'met_dir' = met_dir,
-                                          'binary_path' = binary_path
-                                     ),
-                                     dirtywind::trajectory_day_parallel,
-                                     .progress = TRUE)
-
-    recep_file_path = unique(recep_file_path)
+    future_map(
+               .x = list_run_days,
+               .f = ~ dirtywind::trajectory_day_parallel(
+                          run_day = .x,
+                          daily_hours = daily_hours,
+                          exec_dir = exec_dir,
+                          id_source = id_source,
+                          folder_name = folder_name,
+                          direction = direction,
+                          traj_name = traj_name,
+                          receptor_i = receptor_i,
+                          lat_i = lat_i,
+                          lon_i = lon_i,
+                          height_i = height_i,
+                          duration = duration,
+                          vert_motion = vert_motion,
+                          model_height = model_height, 
+                          met_files = met_files, 
+                          system_type = system_type,
+                          met_dir = met_dir,
+                          config_list = config_list,
+                          ascdata_list = ascdata_list,
+                          binary_path = binary_path)
+    )
+    print(glue::glue("This is the path: {recep_file_path}"))
 
     # Obtain a trajectory data frame
     traj_tbl <-
