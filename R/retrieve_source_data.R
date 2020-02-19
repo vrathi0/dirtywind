@@ -48,9 +48,9 @@ load_plant_data  <- function(conn,
     emissions_filename  <- 'AMPD_Unit_with_Sulfur_Content_and_Regulations_with_Facility_Attributes.csv'
     if (emissions_filename %in% list.files(here::here('data'))){
         message('Reading emissions file from local system')
-        emissions_data  <-  read.csv(emissions_filename)
+        emissions_data  <-  read.csv(here::here('data', emissions_filename))
     } else {
-        emissions_data  <- read.csv(url_emissions)
+        emissions_data  <- read.csv(here::here('data', emissions_filename))
         write.csv(emissions_data,
                   here::here('data', emissions_filename),
                   row.names = FALSE)
@@ -79,11 +79,13 @@ load_plant_data  <- function(conn,
             file.copy(from = csv_path,
                       to= here::here('data', 'ptegu_2014NEIv2_POINT_20171103_final_21dec2017_nf_v2.csv')
             )
+            
+            unlink(temp_path)
+
 
         }
     }
     
-    unlink(temp_path)
 
     # Clean data following Vignette preparation
     require(data.table)
@@ -188,9 +190,13 @@ load_plant_data  <- function(conn,
         }
     } else {
         print('Uploading to database')
-        RPostgres::dbWriteTable(
+
+        table_sql_id  <- DBI::Id(schema = schema,
+                                 table = table_name)
+
+        DBI::dbWriteTable(
                      con = conn,
-                     name = c(schema, table_name),
+                     name = table_sql_id,
                      value = emissions_all_years,
                      row.names = FALSE,
                      copy = TRUE,
