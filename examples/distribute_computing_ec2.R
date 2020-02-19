@@ -5,8 +5,6 @@ library(DBI)
 library(purrr)
 library(furrr)
 library(future)
-
-
 devtools::load_all()
 
 
@@ -48,22 +46,22 @@ cred <- list(drv=RPostgres::Postgres(),
 
 # Build parameter data.frame to run HYSPLIT
 query <-  "
-          select distinct on (facility_id, latitude, longitude, facility_name)
-          facility_id,
-          latitude,
-          longitude,
-          facility_name,
-          stack_height
-          from hysplit.coal_plants
-          where year = 2006
-          "
+    select distinct on (facility_id, latitude, longitude, facility_name) facility_id,
+                                                                         latitude,
+                                                                         longitude,
+                                                                         facility_name,
+                                                                         stack_height
+    from hysplit.coal_plants
+    where year = 2005;
+"
+
 query_df <- dbGetQuery(con, query)
 
 paramemter_df <- model_inputs_unit(query = query,
                   con=con,
                   timedelta = '1 month',
-                  start_date = as.Date('2006-01-01'),
-                  end_date = as.Date('2006-12-31'),
+                  start_date = as.Date('2005-01-01'),
+                  end_date = as.Date('2005-12-31'),
                   duration = 72,
                   daily_hours = c(0, 6, 12, 18))
 
@@ -99,17 +97,15 @@ paramemter_df <- model_inputs_unit(timedelta = '1 month',
 ###############################################################################
 
 
-public_ids <- c('34.219.67.43',
-                '54.185.44.203')
+public_ids <- c(
+                '52.35.6.124',
+                '34.208.111.91',
+                '34.209.41.9'
+                )
+
 cls <- make_cluster_ec2(public_ids)
 
-
-parameter_barry <- paramemter_df %>%
-  filter(facility_name == 'Barry')
-
-
-plan(list(tweak(cluster, workers = cls), multicore))
-
+plan(list(tweak(cluster, workers = cls), multisession))
 
 creds_aws <- list(
              user=Sys.getenv('USER'),
@@ -123,7 +119,7 @@ creds_aws <- list(
 
 system.time(
   test_hysplit <-
-  parameter_barry %>%
+  paramemter_df %>%
   mutate(model_traj = furrr::future_pmap(list(
                                'lat' = latitude,
                                'lon' = longitude,
@@ -139,10 +135,11 @@ system.time(
                                'exec_dir' = "/home/ubuntu/hysplit",
                                'clean_up' = FALSE,
                                'db' = TRUE,
-                               'table_name' = 'trajectories_hysplit_ec2',
+                               'schema' = 'hysplit_partitions',
+                               'table_name' = 'trajectories_master',
                                'cred'= list(creds_aws)
                               ),
-                           dirtywind::hysplit_trajectory)
+                           dirtywind::hysplit_trajectory_parallel_master)
   )
 )
 
